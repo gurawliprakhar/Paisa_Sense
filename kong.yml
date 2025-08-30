@@ -1,0 +1,22 @@
+_format_version: "2.1"
+services:
+  - name: auth-service
+    url: http://auth-service:8080
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+
+  - name: sms-service
+    url: http://sms-service:8081
+    routes:
+      - name: sms-route
+        paths:
+          - /sms
+
+  - name: expense-service
+    url: http://expense-service:8082
+    routes:
+      - name: expense-route
+        paths:
+          - /expenses
