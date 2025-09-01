@@ -1,7 +1,45 @@
-version: '3.9'
+version: "3.9"
+
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=paisasense
+    ports:
+      - "3306:3306"
+    networks:
+      - paisa-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/paisasense?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    depends_on:
+      - mysql
+    networks:
+      - paisa-network
+    restart: always
+
+  sms-service:
+    build: ./sms-service
+    container_name: sms-service
+    ports:
+      - "8090:8090"
+    depends_on:
+      - kafka
+    networks:
+      - paisa-network
+
   kong:
     image: kong:latest
+    container_name: kong
     ports:
       - "8000:8000"
       - "8001:8001"
@@ -10,11 +48,31 @@ services:
       - KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml
     volumes:
       - ./kong.yml:/etc/kong/kong.yml
+    depends_on:
+      - auth-service
+      - mysql
+    networks:
+      - paisa-network
 
-  mysql:
-    image: mysql:8
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=paisasense
+  zookeeper:
+    image: wurstmeister/zookeeper
     ports:
-      - "3306:3306"
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: paisa_sense-kafka-1
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: paisa_sense-zookeeper-1:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+    depends_on:
+      - zookeeper
+
+
+networks:
+  paisa-network:
+    driver: bridge

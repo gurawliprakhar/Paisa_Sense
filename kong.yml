@@ -1,4 +1,5 @@
 _format_version: "2.1"
+
 services:
   - name: auth-service
     url: http://auth-service:8080
@@ -6,17 +7,18 @@ services:
       - name: auth-route
         paths:
           - /auth
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+          uri_param_names:
+            - jwt
+          anonymous: true
 
   - name: sms-service
-    url: http://sms-service:8081
+    url: http://sms-service:8090
     routes:
       - name: sms-route
         paths:
           - /sms
-
-  - name: expense-service
-    url: http://expense-service:8082
-    routes:
-      - name: expense-route
-        paths:
-          - /expenses
