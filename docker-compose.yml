@@ -1,6 +1,9 @@
 version: "3.9"
 
 services:
+  # ===============================
+  # MySQL Database
+  # ===============================
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -17,11 +20,14 @@ services:
       retries: 5
       start_period: 30s
 
+  # ===============================
+  # Auth Service
+  # ===============================
   auth-service:
     build: ./auth-service
     container_name: auth-service
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Host port 8080
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/paisasense?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
@@ -33,11 +39,14 @@ services:
       - paisa-network
     restart: always
 
+  # ===============================
+  # SMS Service
+  # ===============================
   sms-service:
     build: ./sms-service
     container_name: sms-service
     ports:
-      - "8090:8090"
+      - "8090:8090"  # Host port 8090
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/paisasense?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
@@ -52,6 +61,25 @@ services:
       - paisa-network
     restart: always
 
+  # ===============================
+  # AI Parser Service (NEW)
+  # ===============================
+  ai-parser-service:
+    build: ./ai-parser-service
+    container_name: ai-parser-service
+    ports:
+      - "8082:8080"  # Host port 8082 to avoid conflict, container runs on 8080
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - paisa-network
+    restart: always
+
+  # ===============================
+  # Kong API Gateway
+  # ===============================
   kong:
     image: kong:latest
     container_name: kong
@@ -65,9 +93,14 @@ services:
       - ./kong.yml:/etc/kong/kong.yml
     depends_on:
       - auth-service
+      - sms-service
+      - ai-parser-service
     networks:
       - paisa-network
 
+  # ===============================
+  # Zookeeper
+  # ===============================
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper
@@ -76,6 +109,9 @@ services:
     networks:
       - paisa-network
 
+  # ===============================
+  # Kafka Broker
+  # ===============================
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
