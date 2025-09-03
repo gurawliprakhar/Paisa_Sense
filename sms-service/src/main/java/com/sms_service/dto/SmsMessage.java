@@ -1,10 +1,15 @@
 package com.sms_service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+
 import java.time.LocalDateTime;
 
 public class SmsMessage {
+
     @NotBlank(message = "Sender cannot be blank")
     private String sender;
 
@@ -15,7 +20,11 @@ public class SmsMessage {
     @Size(max = 160, message = "Message cannot exceed 160 characters")
     private String message;
 
+    @JsonIgnore  // Ignore this field in JSON mapping
     private LocalDateTime timestamp;
+
+    @Autowired
+    private KafkaTemplate<String, SmsMessage> kafkaTemplate;
 
     // Constructors
     public SmsMessage() {
@@ -29,6 +38,9 @@ public class SmsMessage {
         this.timestamp = LocalDateTime.now();
     }
 
+    public void sendSms(SmsMessage smsMessage) {
+        kafkaTemplate.send("sms-events", smsMessage);
+    }
     // Getters and Setters
     public String getSender() { return sender; }
     public void setSender(String sender) { this.sender = sender; }
@@ -41,4 +53,5 @@ public class SmsMessage {
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
 }

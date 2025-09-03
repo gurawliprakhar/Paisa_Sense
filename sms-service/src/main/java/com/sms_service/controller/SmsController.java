@@ -1,4 +1,4 @@
-package com.sms_service.Controller;
+package com.sms_service.controller;
 
 
 import com.sms_service.dto.SmsMessage;
@@ -19,7 +19,12 @@ public class SmsController {
 
     @PostMapping("/new")
     public ResponseEntity<String> sendSms(@Valid @RequestBody SmsMessage smsMessage) {
-        smsProducer.sendSms(smsMessage);
+        try {
+            smsProducer.sendSms(smsMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Kafka error: " + e.getMessage());
+        }
         return ResponseEntity.ok("SMS sent to Kafka successfully!");
     }
 }
