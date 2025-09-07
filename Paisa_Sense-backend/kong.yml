@@ -1,0 +1,59 @@
+_format_version: "2.1"
+
+services:
+  # ===============================
+  # Auth Service
+  # ===============================
+  - name: auth-service
+    url: http://auth-service:8080   # Container/service URL in Docker
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+          uri_param_names:
+            - jwt
+          anonymous: true
+
+  # ===============================
+  # SMS Service
+  # ===============================
+  - name: sms-service
+    url: http://sms-service:8090
+    routes:
+      - name: sms-route
+        paths:
+          - /sms
+
+  # ===============================
+  # AI Parser Service
+  # ===============================
+  - name: ai-parser-service
+    url: http://ai-parser-service:8080
+    routes:
+      - name: ai-parser-route
+        paths:
+          - /ai-parser
+
+  # ===============================
+  # Expense Service (NEW)
+  # ===============================
+  - name: expense-service
+    url: http://expense-service:8080   # Container/service URL in Docker
+    routes:
+      - name: expense-route
+        paths:
+          - /expenses                   # Exposed path via Kong
+    # Optional plugins
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+          uri_param_names:
+            - jwt
+          anonymous: true
