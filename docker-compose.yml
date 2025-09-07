@@ -7,6 +7,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql
+    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=paisasense
@@ -27,7 +28,7 @@ services:
     build: ./auth-service
     container_name: auth-service
     ports:
-      - "8080:8080"  # Host port 8080
+      - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/paisasense?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
@@ -46,7 +47,7 @@ services:
     build: ./sms-service
     container_name: sms-service
     ports:
-      - "8090:8090"  # Host port 8090
+      - "8090:8090"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/paisasense?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
@@ -62,17 +63,39 @@ services:
     restart: always
 
   # ===============================
-  # AI Parser Service (NEW)
+  # AI Parser Service
   # ===============================
   ai-parser-service:
     build: ./ai-parser-service
     container_name: ai-parser-service
     ports:
-      - "8082:8080"  # Host port 8082 to avoid conflict, container runs on 8080
+      - "8082:8080"
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       - kafka
+    networks:
+      - paisa-network
+    restart: always
+
+  # ===============================
+  # Expense Service (NEW)
+  # ===============================
+  expense-service:
+    build: ./expense-service
+    container_name: expense-service
+    ports:
+      - "8081:8080" # Host pe 8081, container me 8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/paisasense?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - paisa-network
     restart: always
@@ -95,6 +118,7 @@ services:
       - auth-service
       - sms-service
       - ai-parser-service
+      - expense-service
     networks:
       - paisa-network
 

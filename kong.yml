@@ -9,9 +9,9 @@ services:
     routes:
       - name: auth-route
         paths:
-          - /auth                     # Exposed path via Kong
+          - /auth
     plugins:
-      - name: jwt                     # JWT plugin for auth
+      - name: jwt
         config:
           claims_to_verify:
             - exp
@@ -23,28 +23,37 @@ services:
   # SMS Service
   # ===============================
   - name: sms-service
-    url: http://sms-service:8090      # Container/service URL in Docker
+    url: http://sms-service:8090
     routes:
       - name: sms-route
         paths:
-          - /sms                      # Exposed path via Kong
-    # You can add plugins here if needed (like rate limiting, auth, etc.)
+          - /sms
 
   # ===============================
-  # AI Parser Service (NEW)
+  # AI Parser Service
   # ===============================
   - name: ai-parser-service
-    url: http://ai-parser-service:8080   # Container/service URL (from docker-compose)
+    url: http://ai-parser-service:8080
     routes:
       - name: ai-parser-route
         paths:
-          - /ai-parser                   # Path to call AI Parser Service via Kong
-    # Optional: Add plugins if you want auth or rate-limiting for this service
-    # plugins:
-    #   - name: jwt
-    #     config:
-    #       claims_to_verify:
-    #         - exp
-    #       uri_param_names:
-    #         - jwt
-    #       anonymous: true
+          - /ai-parser
+
+  # ===============================
+  # Expense Service (NEW)
+  # ===============================
+  - name: expense-service
+    url: http://expense-service:8080   # Container/service URL in Docker
+    routes:
+      - name: expense-route
+        paths:
+          - /expenses                   # Exposed path via Kong
+    # Optional plugins
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+          uri_param_names:
+            - jwt
+          anonymous: true
