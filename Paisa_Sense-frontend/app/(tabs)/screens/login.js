@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import { BASE_URL } from '../../../constants/api';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -18,12 +19,11 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://auth-service:8080/auth/login', { email, password });
+      const response = await axios.post(`${BASE_URL}:8080/auth/login`, { email, password });
       const token = response.data.token;
 
       await AsyncStorage.setItem('jwt', token);
 
-      // Navigate to Expense screen
       router.push('/(tabs)/expense');
     } catch (error) {
       console.error(error);
@@ -52,7 +52,7 @@ export default function LoginScreen() {
         secureTextEntry
       />
       <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
-      <Button title="Signup" onPress={() => router.push('/(tabs)/screens/signup')} />
+      <Button title="Signup" onPress={() => router.push('/(tabs)/signup')} />
     </View>
   );
 }

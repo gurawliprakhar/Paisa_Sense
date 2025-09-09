@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { BASE_URL } from '../../../constants/api';
 
 export default function ExpenseScreen() {
   const [expenses, setExpenses] = useState([]);
@@ -10,7 +11,7 @@ export default function ExpenseScreen() {
     const fetchExpenses = async () => {
       try {
         const token = await AsyncStorage.getItem('jwt');
-        const response = await axios.get('http://expense-service:8080/expenses', {
+        const response = await axios.get(`${BASE_URL}/expenses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setExpenses(response.data);

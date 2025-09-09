@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import { BASE_URL } from '../../../constants/api';
+
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -17,11 +19,12 @@ export default function SignupScreen() {
 
     setLoading(true);
     try {
-      await axios.post('http://auth-service:8080/auth/signup', { email, password });
+      // Backend request using BASE_URL
+      await axios.post(`${BASE_URL}:8080/auth/signup`, { email, password });
       Alert.alert('Success', 'Signup successful! Ab login karein');
 
       // Navigate to Login screen
-      router.push('/(tabs)/screens/login');
+      router.push('/(tabs)/login');
     } catch (error) {
       console.error(error);
       Alert.alert('Signup Failed', 'Kuch galat ho gaya');
@@ -49,7 +52,7 @@ export default function SignupScreen() {
         secureTextEntry
       />
       <Button title={loading ? 'Signing up...' : 'Signup'} onPress={handleSignup} disabled={loading} />
-      <Button title="If already account! Login" onPress={() => router.push('/(tabs)/screens/login')} />
+      <Button title="Already have account? Login" onPress={() => router.push('/(tabs)/login')} />
     </View>
   );
 }
