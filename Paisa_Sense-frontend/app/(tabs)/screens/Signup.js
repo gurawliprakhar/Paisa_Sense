@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 
-const SignupScreen = () => {
+export default function SignupScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,14 +17,11 @@ const SignupScreen = () => {
 
     setLoading(true);
     try {
-      // Signup request to Kong auth route
-      await axios.post('http://auth-service:8080/auth/signup', {
-        email,
-        password,
-      });
-
+      await axios.post('http://auth-service:8080/auth/signup', { email, password });
       Alert.alert('Success', 'Signup successful! Ab login karein');
-      router.push('/(tabs)/screens/LoginScreen'); // Navigate to Login
+
+      // Navigate to Login screen
+      router.push('/(tabs)/screens/login');
     } catch (error) {
       console.error(error);
       Alert.alert('Signup Failed', 'Kuch galat ho gaya');
@@ -52,11 +49,10 @@ const SignupScreen = () => {
         secureTextEntry
       />
       <Button title={loading ? 'Signing up...' : 'Signup'} onPress={handleSignup} disabled={loading} />
+      <Button title="If already account! Login" onPress={() => router.push('/(tabs)/screens/login')} />
     </View>
   );
-};
-
-export default SignupScreen;
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20 },

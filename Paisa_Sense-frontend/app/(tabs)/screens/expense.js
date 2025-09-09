@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const ExpenseScreen = () => {
+export default function ExpenseScreen() {
   const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
@@ -36,9 +36,7 @@ const ExpenseScreen = () => {
       />
     </View>
   );
-};
-
-export default ExpenseScreen;
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },

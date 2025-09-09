@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 
-const LoginScreen = () => {
+export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +23,8 @@ const LoginScreen = () => {
 
       await AsyncStorage.setItem('jwt', token);
 
-      router.push('/(tabs)/screens/ExpenseScreen'); // Navigate to Expense
+      // Navigate to Expense screen
+      router.push('/(tabs)/expense');
     } catch (error) {
       console.error(error);
       Alert.alert('Login Failed', 'Email ya password galat hai');
@@ -51,11 +52,10 @@ const LoginScreen = () => {
         secureTextEntry
       />
       <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
+      <Button title="Signup" onPress={() => router.push('/(tabs)/screens/signup')} />
     </View>
   );
-};
-
-export default LoginScreen;
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20 },
